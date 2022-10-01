@@ -3,7 +3,7 @@ import torch
 from PIL import Image
 import numpy as np
 
-model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
+model = torch.hub.load('ultralytics/yolov5', 'yolov5n', pretrained=True)
 camera = cv2.VideoCapture(1)
 cv2.namedWindow("test")
 
@@ -25,6 +25,7 @@ while True:
         xmin, ymin, xmax, ymax = toothbrush.xmin, toothbrush.ymin, toothbrush.xmax, toothbrush.ymax
         drawing_point = (np.mean((xmin, xmax)), ymax)
         drawing.append(drawing_point)
+        print(results)
     else:
         print('Waiting')
 
