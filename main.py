@@ -3,7 +3,8 @@ import torch
 from PIL import Image
 import numpy as np
 
-model = torch.hub.load('ultralytics/yolov5', 'yolov5n', pretrained=True)
+model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
+model.multi_label = True
 camera = cv2.VideoCapture(1)
 cv2.namedWindow("test")
 
