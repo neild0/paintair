@@ -43,10 +43,11 @@ def upload_drawing():
         # img = Image.fromarray(img[0])
         retval, buffer = cv2.imencode('.jpg', img[0])
         # Convert to base64 encoding and show start of data
-        files = {'img': buffer}
+        jpg_as_text = base64.b64encode(buffer)
+        files = {'img': jpg_as_text}
 
 
-        return {'img': json.dumps(files)}
+        return {'img': jpg_as_text}
     # except Exception as e:
     #     print(e)
     #     # pil_img.save("output.png")
