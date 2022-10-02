@@ -1,0 +1,7 @@
+opencv-python
+torch
+Pillow
+numpy
+speech_recognition
+git+https://github.com/Uberi/speech_recognition
+vosk
