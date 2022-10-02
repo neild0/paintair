@@ -28,7 +28,7 @@ def dist(point1, point2):
     x2, y2 = point2
     return abs(x1 - x2) ** 2 + abs(y1 - y2) ** 2
 
-camera = cv2.VideoCapture(1)
+camera = cv2.VideoCapture(0)
 cv2.namedWindow("test")
 
 CLEAR = False
@@ -101,9 +101,9 @@ def callback(recognizer, audio):
         # to use another API key, use `r.recognize_google(audio, key="GOOGLE_SPEECH_RECOGNITION_API_KEY")`
         # instead of `r.recognize_google(audio)`
         text = recognizer.recognize_vosk(audio)
-        if 'bye bye' in text:
+        if 'i made' in text:
             global END
-            END = True
+            END = text.replace('i made','')
         if "clear" in text:
             global CLEAR
             CLEAR = True
@@ -189,6 +189,7 @@ while True:
     if k == 27:
         break
 
+ans = END['text'].strip()
 
 # model = replicate.models.get("stability-ai/stable-diffusion")
 # input = "a ninja"
