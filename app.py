@@ -11,9 +11,9 @@ from io import BytesIO
 server = Flask(__name__)
 
 generator = StableDiffusion(
-    img_height=512,
-    img_width=512,
-    jit_compile=False,  # You can try True as well (different performance profile)
+    img_height=720,
+    img_width=720,
+    jit_compile=True,  # You can try True as well (different performance profile)
 )
 
 print("server is ready")
@@ -26,7 +26,7 @@ def upload_drawing():
         print(request)
         print(request.data)
         j = json.loads(request.data)
-        img, prompt = j['img']
+        img, prompt = j['img'], j['prompt']
         jpg_as_text = base64.b64decode(img)
         img = BytesIO(jpg_as_text)
         img = Image.open(img)

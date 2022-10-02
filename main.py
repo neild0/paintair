@@ -155,9 +155,7 @@ while True:
             middle_tip12 = int(handLms.landmark[12].x * w), int(handLms.landmark[12].y * h)
             wrist0 = int(handLms.landmark[0].x * w), int(handLms.landmark[0].y * h)
             thumb_tip4 = int(handLms.landmark[4].x * w), int(handLms.landmark[4].y * h)
-
-            if (angle_btw_points(index_tip8, thumb_tip4, wrist0) <= 25.0
-                and dist(index_tip8, middle_tip12) > 15000) or thumb_tip4 is None or wrist0 is None or middle_tip12 is None:
+            if (angle_btw_points(index_tip8, thumb_tip4, wrist0) <= 25.0) or thumb_tip4 is None or wrist0 is None or middle_tip12 is None:
                 cx, cy = index_tip8
                 cv2.circle(img, (cx, cy), 25, draw_color, cv2.FILLED)
                 pts.append((cx, cy, draw_color))
@@ -207,7 +205,7 @@ while True:
             cv2.line(black, prev_point, cur_point, color, 10)
         cv2.imwrite('black.png', black)
     else:
-        y_offset, x_offset = 50, 50
+        y_offset, x_offset = 0,0
         img[y_offset: y_offset + result.size[0], x_offset: x_offset + result.size[1]] = result
 
     cv2.imshow("Frame", img)
