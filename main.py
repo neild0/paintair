@@ -3,6 +3,7 @@ import torch
 from PIL import Image
 import numpy as np
 import mediapipe as mp
+import json
 
 
 import numpy as np
@@ -189,7 +190,8 @@ while True:
     if k == 27:
         break
 
-ans = END['text'].strip()
+ans = json.loads(END)
+ans = ans['text'].strip()
 
 # model = replicate.models.get("stability-ai/stable-diffusion")
 # input = "a ninja"
