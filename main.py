@@ -7,8 +7,7 @@ import mediapipe as mp
 
 import numpy as np
 from collections import deque
-# import speech_recognition as sr
-sr = None
+import speech_recognition as sr
 
 def angle_btw_points(point1, point2, base):
     a = np.array([abs(base[0] - point1[0]), abs(base[1] - point1[1])])
@@ -77,15 +76,14 @@ def callback(recognizer, audio):
         print("Could not request results from Google Speech Recognition service; {0}".format(e))
 
 
-if sr: 
-    r = sr.Recognizer()
-    m = sr.Microphone()
-    with m as source:
-        r.adjust_for_ambient_noise(source)  # we only need to calibrate once, before we start listening
+r = sr.Recognizer()
+m = sr.Microphone()
+with m as source:
+    r.adjust_for_ambient_noise(source)  # we only need to calibrate once, before we start listening
 
-    # start listening in the background (note that we don't have to do this inside a `with` statement)
-    r.listen_in_background(m, callback, phrase_time_limit=2)
-    # `stop_listening` is now a function that, when called, stops
+# start listening in the background (note that we don't have to do this inside a `with` statement)
+r.listen_in_background(m, callback, phrase_time_limit=2)
+# `stop_listening` is now a function that, when called, stops
 
 while True:
     w, h = 1920//2, 1080//2
@@ -115,7 +113,7 @@ while True:
             if (angle_btw_points(index_tip8, thumb_tip4, wrist0) <= 25.0
                 and dist(index_tip8, middle_tip12) > 15000):
                 cx, cy = index_tip8
-                cv2.circle(img, (cx, cy), 25, (255, 0, 255), cv2.FILLED)
+                cv2.circle(img, (cx, cy), 25, draw_color, cv2.FILLED)
                 pts.appendleft((cx, cy, draw_color))
             else:
                 pts.appendleft(None)
