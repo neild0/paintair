@@ -133,7 +133,7 @@ wait_iters = 5
 while True:
     w, h = 1920//2, 1080//2
     success, image = camera.read()
-    if black is None: black = np.zeros_like(image) + 255
+    black = np.zeros_like(image) + 255
 
 
     if not success:
