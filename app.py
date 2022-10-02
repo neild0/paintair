@@ -21,7 +21,9 @@ def upload_drawing():
         import base64
         print(request)
         print(request.data)
-        jpg_as_text = base64.b64decode(request.data)
+        j = json.loads(request.data)
+        j = j['img']
+        jpg_as_text = base64.b64decode(j)
         img = cv2.imdecode(jpg_as_text, cv2.IMREAD_COLOR)
         cv2.imwrite("black.png", img)
         img = generator.generate(
