@@ -40,8 +40,8 @@ def upload_drawing():
             input_image="black.png",
             input_image_strength=0.8
         )
-        img = Image.fromarray(img[0])
-        retval, buffer = cv2.imencode('.jpg', img)
+        # img = Image.fromarray(img[0])
+        retval, buffer = cv2.imencode('.jpg', img[0])
         # Convert to base64 encoding and show start of data
         jpg_as_text = base64.b64encode(buffer)
         files = {'img': jpg_as_text}
