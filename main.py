@@ -4,6 +4,8 @@ from PIL import Image
 import numpy as np
 import mediapipe as mp
 
+
+import numpy as np
 from collections import deque
 # import speech_recognition as sr
 sr = None
@@ -29,14 +31,8 @@ def dist(point1, point2):
 camera = cv2.VideoCapture(0)
 cv2.namedWindow("test")
 
-RED = (0,0,255)
-GREEN = (0,255,0)
-BLUE = (255,0,0)
-
 CLEAR = False
 END = False
-
-COLOR = BLUE
 
 mpHands = mp.solutions.hands
 hands = mpHands.Hands()
@@ -47,16 +43,16 @@ drawing = [None]
 black = None
 pts = deque()
 color_dict = {
-              'read': (249, 19, 0), 'red': (249, 19, 0),
-              "orange": (255, 171, 32),
-              "yellow": (255, 213, 0),
-              "green": (54, 214, 6),
-              "turquoise": (49, 251, 190),
-              "light blue": (152, 214, 255),
-              "dark blue": (36, 63, 234),
-              "blue": (16, 139, 229),
-              "purple": (110, 16, 229),
-              "pink": (255, 158, 224),
+              'read': (0, 19, 249), 'red': (0, 19, 249),
+              "orange": (32, 171, 255),
+              "yellow": (0, 213, 255),
+              "green": (6, 214, 54),
+              "turquoise": (190, 251, 49),
+              "light blue": (255, 214, 152),
+              "dark blue": (234, 63, 36),
+              "blue": (229, 139, 16),
+              "purple": (229, 16, 110),
+              "pink": (224, 158, 255),
               "black": (0, 0, 0),
               "white": (255, 255, 255)
               }
@@ -97,7 +93,7 @@ while True:
 
     if not success:
         break
-    
+
     black = np.zeros_like(image) + 255
     img = image
 
@@ -116,12 +112,11 @@ while True:
             wrist0 = int(handLms.landmark[0].x * w), int(handLms.landmark[0].y * h)
             thumb_tip4 = int(handLms.landmark[4].x * w), int(handLms.landmark[4].y * h)
 
-            print("dist is ", dist(index_tip8, middle_tip12))
-            if (angle_btw_points(index_tip8, thumb_tip4, wrist0) <= 30.0
+            if (angle_btw_points(index_tip8, thumb_tip4, wrist0) <= 25.0
                 and dist(index_tip8, middle_tip12) > 15000):
                 cx, cy = index_tip8
                 cv2.circle(img, (cx, cy), 25, (255, 0, 255), cv2.FILLED)
-                pts.appendleft((cx, cy))
+                pts.appendleft((cx, cy, draw_color))
             else:
                 pts.appendleft(None)
     
@@ -136,8 +131,9 @@ while True:
     for i in range(1, len(pts)):
         if pts[i - 1] is None or pts[i] is None:
             continue
-        cv2.line(img, pts[i - 1], pts[i], COLOR, 2)
-        cv2.line(black, pts[i-1], pts[i], COLOR, 2)
+        prev_point, cur_point, color = pts[i-1][:2], pts[i][:2], pts[i][2]
+        cv2.line(img, prev_point, cur_point, color, 2)
+        cv2.line(black, prev_point, cur_point, color, 2)
 
     cv2.imshow("Frame", img)
     #cv2.imshow("black", black)
@@ -146,7 +142,24 @@ while True:
     if k == 27:
         break
 
-    else:
-        print('Waiting')
-
 print(drawing)
+
+from stable_diffusion_tf.stable_diffusion import StableDiffusion
+from PIL import Image
+
+generator = StableDiffusion(
+    img_height=512,
+    img_width=512,
+    jit_compile=False,  # You can try True as well (different performance profile)
+)
+
+img = generator.generate(
+    "a high quality sketch of the sun , watercolor , pencil color",
+    num_steps=50,
+    unconditional_guidance_scale=7.5,
+    temperature=1,
+    batch_size=1,
+    input_image="test4.png",
+    input_image_strength=0.8
+)
+pil_img = Image.fromarray(img[0])

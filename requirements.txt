@@ -1,0 +1,12 @@
+opencv-python
+torch
+Pillow
+numpy
+pyaudio
+git+https://github.com/Uberi/speech_recognition
+vosk
+mediapipe
+git+https://github.com/divamgupta/stable-diffusion-tensorflow
+tensorflow
+tensorflow_addons
+ftfy
