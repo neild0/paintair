@@ -32,13 +32,13 @@ def upload_drawing():
         img = Image.open(img)
         cv2.imwrite("black.png", np.array(img))
         img = generator.generate(
-            f"a high quality painting of a {prompt} , watercolor , pencil color , oil , pastel",
+            f"{prompt}",
             num_steps=50,
             unconditional_guidance_scale=7.5,
             temperature=1,
             batch_size=1,
             input_image="black.png",
-            input_image_strength=0.9
+            input_image_strength=0.7
         )
         # img = Image.fromarray(img[0])
         retval, buffer = cv2.imencode('.jpg', img[0])
