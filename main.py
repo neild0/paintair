@@ -101,16 +101,16 @@ def callback(recognizer, audio):
         # to use another API key, use `r.recognize_google(audio, key="GOOGLE_SPEECH_RECOGNITION_API_KEY")`
         # instead of `r.recognize_google(audio)`
         text = recognizer.recognize_vosk(audio)
-        if ' i made ' in text:
+        if 'i made' in text:
             global END
             END = True
-        if " clear " in text:
+        if "clear" in text:
             global CLEAR
             CLEAR = True
 
         # text = recognizer.recognize_whisper(audio)
         for color, value in color_dict.items():
-            if f' {color} ' in text:
+            if f' {color} ' in text or f'{color}' in text:
                 global draw_color
                 draw_color = value
                 break
@@ -174,6 +174,7 @@ while True:
         retval, buffer = cv2.imencode('.jpg', image)
         # Convert to base64 encoding and show start of data
         jpg_as_text = base64.b64encode(buffer)
+        print(jpg_as_text)
         files = {'img': jpg_as_text}
         response = requests.post(url, data = files)
         print("response is", response)
@@ -192,8 +193,8 @@ while True:
         if pts[i - 1] is None or pts[i] is None:
             continue
         prev_point, cur_point, color = pts[i-1][:2], pts[i][:2], pts[i][2]
-        cv2.line(img, prev_point, cur_point, color, 2)
-        cv2.line(black, prev_point, cur_point, color, 2)
+        cv2.line(img, prev_point, cur_point, color, 5)
+        cv2.line(black, prev_point, cur_point, color, 5)
 
     cv2.imshow("Frame", img)
     #cv2.imshow("black", black)
