@@ -30,7 +30,7 @@ def upload_drawing():
             jpg_as_text = base64.b64decode(j)
             img = BytesIO(jpg_as_text)
             img = Image.open(img)
-            cv2.imwrite("black.png", img)
+            cv2.imwrite("black.png", np.array(img))
             img = generator.generate(
                 "a high quality sketch of the sun , watercolor , pencil color",
                 num_steps=50,
@@ -47,6 +47,6 @@ def upload_drawing():
 
 
             return {'img': json.dumps(jpg_as_text)}
-    except e:
+    except Exception as e:
         print(e)
         # pil_img.save("output.png")
