@@ -103,7 +103,7 @@ def callback(recognizer, audio):
         text = recognizer.recognize_vosk(audio)
         if 'i made' in text:
             global END
-            END = True
+            END = text.replace('i made', ' ')
         if "clear" in text:
             global CLEAR
             CLEAR = True
@@ -179,7 +179,7 @@ while True:
         jpg_as_text = base64.b64encode(buffer)
         print(jpg_as_text)
         files = {'img': jpg_as_text}
-        response = requests.post(url, data = files)
+        response = requests.post(url, json = files)
         print("response is", response)
         new_img = Image.fromarray(json.loads(response['pic']), dtype='uint8')
         jpg_as_text = base64.b64decode(new_img)
