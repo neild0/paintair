@@ -71,7 +71,7 @@ def recognize_whisper(self, audio_data, model="base", show_dict=False, load_opti
     """
 
     assert isinstance(audio_data, sr.AudioData), "Data must be audio data"
-    import whisper
+    # import whisper
     import tempfile
 
     if load_options or not hasattr(self, "whisper_model") or self.whisper_model.get(model) is None:
@@ -100,9 +100,9 @@ def callback(recognizer, audio):
         # to use another API key, use `r.recognize_google(audio, key="GOOGLE_SPEECH_RECOGNITION_API_KEY")`
         # instead of `r.recognize_google(audio)`
         text = recognizer.recognize_vosk(audio)
-        if 'i made' in text:
+        if 'bye bye' in text:
             global END
-            END = text.replace('i made','')
+            END = True
         if "clear" in text:
             global CLEAR
             CLEAR = True
@@ -169,8 +169,9 @@ while True:
     if END:
         # make the request
         url = "http://latte.csua.berkeley.edu:5000/sd"
-        files = {'img': black}
+        files = {'img': np.array(black)}
         response = requests.post(url, files = files)
+        print("response is", response)
         new_img = Image.fromarray(np.array(json.loads(response['pic']), dtype='uint8'))
         cv2.imshow(new_img)
         break
@@ -195,7 +196,6 @@ while True:
     if k == 27:
         break
 
-ans = END['text'].strip()
 
 # model = replicate.models.get("stability-ai/stable-diffusion")
 # input = "a ninja"
