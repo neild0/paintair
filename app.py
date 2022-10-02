@@ -38,7 +38,7 @@ def upload_drawing():
             temperature=1,
             batch_size=1,
             input_image="black.png",
-            input_image_strength=0.8
+            input_image_strength=0.9
         )
         # img = Image.fromarray(img[0])
         retval, buffer = cv2.imencode('.jpg', img[0])
