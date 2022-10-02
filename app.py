@@ -44,6 +44,7 @@ def upload_drawing():
         retval, buffer = cv2.imencode('.jpg', img[0])
         # Convert to base64 encoding and show start of data
         jpg_as_text = base64.b64encode(buffer)
+        print(type(jpg_as_text),jpg_as_text)
         files = {'img': jpg_as_text}
 
 
