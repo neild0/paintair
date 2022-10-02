@@ -33,7 +33,7 @@ def upload_drawing():
         cv2.imwrite("black.png", np.array(img))
         img = generator.generate(
             "a high quality sketch of the sun , watercolor , pencil color",
-            num_steps=1,
+            num_steps=50,
             unconditional_guidance_scale=7.5,
             temperature=1,
             batch_size=1,
