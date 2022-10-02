@@ -33,13 +33,14 @@ def upload_drawing():
         cv2.imwrite("black.png", np.array(img))
         img = generator.generate(
             "a high quality sketch of the sun , watercolor , pencil color",
-            num_steps=50,
+            num_steps=1,
             unconditional_guidance_scale=7.5,
             temperature=1,
             batch_size=1,
             input_image="black.png",
             input_image_strength=0.8
         )
+        img = Image.fromarray(img[0])
         retval, buffer = cv2.imencode('.jpg', img)
         # Convert to base64 encoding and show start of data
         jpg_as_text = base64.b64encode(buffer)
