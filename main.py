@@ -160,12 +160,12 @@ while True:
                 and dist(index_tip8, middle_tip12) > 15000):
                 cx, cy = index_tip8
                 cv2.circle(img, (cx, cy), 25, draw_color, cv2.FILLED)
-                pts.appendleft((cx, cy, draw_color))
+                pts.append((cx, cy, draw_color))
                 wait_iters = 5
             else:
                 wait_iters -= 1
                 if not wait_iters:
-                    pts.appendleft(None)
+                    pts.append(None)
 
     if END:
         break
@@ -190,30 +190,28 @@ while True:
         break
 
 
-# model = replicate.models.get("stability-ai/stable-diffusion")
-# input = "a ninja"
-# for image in model.predict(prompt=f"a high quality sketch of {input} , watercolor , pencil color", init_image=open("black.jpeg", "rb"), width=1024, height=768, prompt_strength=0.7, num_inference_steps=50):
-#     print(image)
+model = replicate.models.get("stability-ai/stable-diffusion")
 
+input = "a ninja"
+for image in model.predict(prompt=f"a high quality sketch of {input} , watercolor , pencil color", init_image=open("black.jpeg", "rb"), width=1024, height=768, prompt_strength=0.7, num_inference_steps=50):
+    print(image)
 
+from stable_diffusion_tf.stable_diffusion import StableDiffusion
+from PIL import Image
 
+generator = StableDiffusion(
+    img_height=512,
+    img_width=512,
+    jit_compile=False,  # You can try True as well (different performance profile)
+)
 
-# from stable_diffusion_tf.stable_diffusion import StableDiffusion
-# from PIL import Image
-#
-# generator = StableDiffusion(
-#     img_height=512,
-#     img_width=512,
-#     jit_compile=False,  # You can try True as well (different performance profile)
-# )
-#
-# img = generator.generate(
-#     "a high quality sketch of the sun , watercolor , pencil color",
-#     num_steps=50,
-#     unconditional_guidance_scale=7.5,
-#     temperature=1,
-#     batch_size=1,
-#     input_image="test4.png",
-#     input_image_strength=0.8
-# )
-# pil_img = Image.fromarray(img[0])
+img = generator.generate(
+    "a high quality sketch of the sun , watercolor , pencil color",
+    num_steps=50,
+    unconditional_guidance_scale=7.5,
+    temperature=1,
+    batch_size=1,
+    input_image="test4.png",
+    input_image_strength=0.8
+)
+pil_img = Image.fromarray(img[0])
