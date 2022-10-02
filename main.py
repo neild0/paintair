@@ -12,6 +12,15 @@ model.multi_label = True
 camera = cv2.VideoCapture(0)
 cv2.namedWindow("test")
 
+RED = (0,0,255)
+GREEN = (0,255,0)
+BLUE = (255,0,0)
+
+CLEAR = False
+END = False
+
+COLOR = BLUE
+
 toothbrush_classes = [79, 67]
 drawing = [None]
 pts = deque()
@@ -51,23 +60,19 @@ while True:
                 pts.appendleft(center)
         else:
             pts.appendleft(None)
+        
+        if END:
+            break
+
+        if CLEAR:
+            pts.clear()
+            CLEAR = False
 
         for i in range(1, len(pts)):
             if pts[i - 1] is None or pts[i] is None:
                 continue
-            cv2.line(img, pts[i - 1], pts[i], (0, 0, 255), 2)
-            cv2.line(black, pts[i-1], pts[i], (0,0,0), 2)
-        # except:
-        #     # if drawing and drawing[-1] != None:
-        #     #     drawing.append(None)
-        #     pass
-
-        # print(drawing)
-        # img = result.render()[0]
-        # for i in range(1, len(drawing)):
-        #     if drawing[i-1] is None or drawing[i] is None:
-        #         continue
-        #     cv2.line(img, drawing[i - 1], drawing[i], (0, 0, 255), 2)
+            cv2.line(img, pts[i - 1], pts[i], COLOR, 2)
+            cv2.line(black, pts[i-1], pts[i], COLOR, 2)
 
         cv2.imshow("Frame", img)
         #cv2.imshow("black", black)
@@ -78,5 +83,3 @@ while True:
 
     else:
         print('Waiting')
-
-print(drawing)
