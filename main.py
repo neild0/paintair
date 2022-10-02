@@ -4,18 +4,12 @@ from PIL import Image
 import numpy as np
 import mediapipe as mp
 
-<<<<<<< HEAD
-=======
-
-import numpy as np
->>>>>>> 68889ebf7132ee0c5a9596c6588a209c2801c800
 from collections import deque
 import speech_recognition as sr
 
 camera = cv2.VideoCapture(1)
 cv2.namedWindow("test")
 
-<<<<<<< HEAD
 RED = (0,0,255)
 GREEN = (0,255,0)
 BLUE = (255,0,0)
@@ -29,8 +23,6 @@ mpHands = mp.solutions.hands
 hands = mpHands.Hands()
 mpDraw = mp.solutions.drawing_utils
 
-=======
->>>>>>> 68889ebf7132ee0c5a9596c6588a209c2801c800
 toothbrush_classes = [79, 67]
 drawing = [None]
 black = None
@@ -87,7 +79,6 @@ while True:
         break
     
     black = np.zeros_like(image) + 255
-<<<<<<< HEAD
     img = image
 
     img = cv2.flip(img, 1)
@@ -107,39 +98,6 @@ while True:
     
     if END:
         break
-=======
-    if success:
-        img = image
-    
-        img = cv2.flip(img, 1)
-        kernel = np.ones((5, 5), np.uint8)
-        Lower_green = np.array((51,48, 183)) - 20
-        Upper_green = np.array((74,65,225)) + 20
-        
-        mask = cv2.inRange(img, Lower_green, Upper_green)
-        mask = cv2.erode(mask, kernel, iterations=2)
-        mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
-        # mask=cv2.morphologyEx(mask,cv2.MORPH_CLOSE,kernel)
-        mask = cv2.dilate(mask, kernel, iterations=1)
-        res = cv2.bitwise_and(img, img, mask=mask)
-        cnts, heir = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2:]
-        center = None
-
-        if len(cnts) >= 1:
-            cnt = max(cnts, key=cv2.contourArea)
-            if cv2.contourArea(cnt) > 200:
-                ((x, y), radius) = cv2.minEnclosingCircle(cnt)
-                cv2.circle(img, (int(x), int(y)), int(radius), draw_color, 2)
-                cv2.circle(img, center, 5, draw_color, -1)
-                M = cv2.moments(cnt)
-                center = (int(M['m10'] / M['m00']), int(M['m01'] / M['m00']))
-                pts.appendleft(center)
-        else:
-            pts.appendleft(None)
-        
-        if END:
-            break
->>>>>>> 68889ebf7132ee0c5a9596c6588a209c2801c800
 
     if CLEAR:
         pts.clear()
