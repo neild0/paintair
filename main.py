@@ -103,7 +103,7 @@ def callback(recognizer, audio):
         text = recognizer.recognize_vosk(audio)
         if ' i made ' in text:
             global END
-            END = True
+            END = text.replace('i made','')
         if " clear " in text:
             global CLEAR
             CLEAR = True
@@ -169,6 +169,9 @@ while True:
 
     if END:
         import base64
+
+        text = json.loads(END)
+        text = text['text'].strip()
         # make the request
         url = "http://latte.csua.berkeley.edu:5000/sd"
         retval, buffer = cv2.imencode('.jpg', image)
@@ -202,9 +205,6 @@ while True:
     k = cv2.waitKey(10)
     if k == 27:
         break
-
-ans = json.loads(END)
-ans = ans['text'].strip()
 
 # model = replicate.models.get("stability-ai/stable-diffusion")
 #
