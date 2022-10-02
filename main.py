@@ -202,11 +202,11 @@ while True:
 ans = json.loads(END)
 ans = ans['text'].strip()
 
-model = replicate.models.get("stability-ai/stable-diffusion")
-
-input = "a ninja"
-for image in model.predict(prompt=f"a high quality sketch of {input} , watercolor , pencil color", init_image=open("black.jpeg", "rb"), width=1024, height=768, prompt_strength=0.7, num_inference_steps=50):
-    print(image)
+# model = replicate.models.get("stability-ai/stable-diffusion")
+#
+# input = "a ninja"
+# for image in model.predict(prompt=f"a high quality sketch of {input} , watercolor , pencil color", init_image=open("black.jpeg", "rb"), width=1024, height=768, prompt_strength=0.7, num_inference_steps=50):
+#     print(image)
 
 from stable_diffusion_tf.stable_diffusion import StableDiffusion
 from PIL import Image
