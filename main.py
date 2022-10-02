@@ -1,4 +1,3 @@
-from multiprocessing.connection import wait
 import cv2
 import torch
 from PIL import Image
@@ -9,6 +8,7 @@ import mediapipe as mp
 import numpy as np
 from collections import deque
 import speech_recognition as sr
+import replicate
 
 def angle_btw_points(point1, point2, base):
     a = np.array([abs(base[0] - point1[0]), abs(base[1] - point1[1])])
@@ -28,7 +28,7 @@ def dist(point1, point2):
     x2, y2 = point2
     return abs(x1 - x2) ** 2 + abs(y1 - y2) ** 2
 
-camera = cv2.VideoCapture(0)
+camera = cv2.VideoCapture(1)
 cv2.namedWindow("test")
 
 CLEAR = False
@@ -58,6 +58,42 @@ color_dict = {
               }
 # this is called from the background thread
 draw_color = (0, 0, 0)
+
+
+def recognize_whisper(self, audio_data, model="base", show_dict=False, load_options=None, language=None,
+                      translate=False, **transcribe_options):
+    """
+    Performs speech recognition on ``audio_data`` (an ``AudioData`` instance), using Whisper.
+    The recognition language is determined by ``language``, an uncapitalized full language name like "english" or "chinese". See the full language list at https://github.com/openai/whisper/blob/main/whisper/tokenizer.py
+    model can be any of tiny, base, small, medium, large, tiny.en, base.en, small.en, medium.en. See https://github.com/openai/whisper for more details.
+    If show_dict is true, returns the full dict response from Whisper, including the detected language. Otherwise returns only the transcription.
+    You can translate the result to english with Whisper by passing translate=True
+    Other values are passed directly to whisper. See https://github.com/openai/whisper/blob/main/whisper/transcribe.py for all options
+    """
+
+    assert isinstance(audio_data, sr.AudioData), "Data must be audio data"
+    import whisper
+    import tempfile
+
+    if load_options or not hasattr(self, "whisper_model") or self.whisper_model.get(model) is None:
+        self.whisper_model = getattr(self, "whisper_model", {})
+        self.whisper_model[model] = whisper.load_model(model, **load_options or {})
+
+    with tempfile.NamedTemporaryFile(suffix=".wav") as f:
+        f.write(audio_data.get_wav_data())
+        f.flush()
+        result = self.whisper_model[model].transcribe(
+            f.name,
+            language=language,
+            task="translate" if translate else None,
+            **transcribe_options
+        )
+
+    if show_dict:
+        return result
+    else:
+        return result["text"]
+
 def callback(recognizer, audio):
     # received audio data, now we'll recognize it using Google Speech Recognition
     try:
@@ -68,12 +104,17 @@ def callback(recognizer, audio):
         if 'bye bye' in text:
             global END
             END = True
+        if "clear" in text:
+            global CLEAR
+            CLEAR = True
+
+        # text = recognizer.recognize_whisper(audio)
         for color, value in color_dict.items():
             if color in text:
                 global draw_color
                 draw_color = value
                 break
-        print("Google Speech Recognition thinks you said " + text)
+        print(text)
     except sr.UnknownValueError:
         print("Google Speech Recognition could not understand audio")
     except sr.RequestError as e:
@@ -125,7 +166,7 @@ while True:
                 wait_iters -= 1
                 if not wait_iters:
                     pts.appendleft(None)
-    
+
     if END:
         break
 
@@ -143,29 +184,36 @@ while True:
 
     cv2.imshow("Frame", img)
     #cv2.imshow("black", black)
-    cv2.imwrite('black.png', black)
+    cv2.imwrite('black.jpeg', black)
     k = cv2.waitKey(10)
     if k == 27:
         break
 
-print(drawing)
 
-from stable_diffusion_tf.stable_diffusion import StableDiffusion
-from PIL import Image
+# model = replicate.models.get("stability-ai/stable-diffusion")
+# input = "a ninja"
+# for image in model.predict(prompt=f"a high quality sketch of {input} , watercolor , pencil color", init_image=open("black.jpeg", "rb"), width=1024, height=768, prompt_strength=0.7, num_inference_steps=50):
+#     print(image)
 
-generator = StableDiffusion(
-    img_height=512,
-    img_width=512,
-    jit_compile=False,  # You can try True as well (different performance profile)
-)
 
-img = generator.generate(
-    "a high quality sketch of the sun , watercolor , pencil color",
-    num_steps=50,
-    unconditional_guidance_scale=7.5,
-    temperature=1,
-    batch_size=1,
-    input_image="test4.png",
-    input_image_strength=0.8
-)
-pil_img = Image.fromarray(img[0])
+
+
+# from stable_diffusion_tf.stable_diffusion import StableDiffusion
+# from PIL import Image
+#
+# generator = StableDiffusion(
+#     img_height=512,
+#     img_width=512,
+#     jit_compile=False,  # You can try True as well (different performance profile)
+# )
+#
+# img = generator.generate(
+#     "a high quality sketch of the sun , watercolor , pencil color",
+#     num_steps=50,
+#     unconditional_guidance_scale=7.5,
+#     temperature=1,
+#     batch_size=1,
+#     input_image="test4.png",
+#     input_image_strength=0.8
+# )
+# pil_img = Image.fromarray(img[0])
