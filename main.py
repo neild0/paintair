@@ -14,8 +14,7 @@ cv2.namedWindow("test")
 
 toothbrush_classes = [79, 67]
 drawing = [None]
-pts = deque(maxlen=512*8)
-
+pts = deque()
 black = None
 while True:
     w, h = 1920//2, 1080//2
@@ -28,8 +27,8 @@ while True:
         img = cv2.flip(img, 1)
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         kernel = np.ones((5, 5), np.uint8)
-        Upper_green = np.array((167,110, 102))
-        Lower_green = np.array((115,57,52))
+        Lower_green = np.array((183,48, 51)) - 20
+        Upper_green = np.array((225,65,74)) + 20
         
         mask = cv2.inRange(hsv, Lower_green, Upper_green)
         mask = cv2.erode(mask, kernel, iterations=2)
@@ -41,6 +40,7 @@ while True:
         center = None
 
         if len(cnts) >= 1:
+            print(cnts)
             cnt = max(cnts, key=cv2.contourArea)
             if cv2.contourArea(cnt) > 200:
                 ((x, y), radius) = cv2.minEnclosingCircle(cnt)
