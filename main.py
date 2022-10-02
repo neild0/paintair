@@ -14,18 +14,22 @@ cv2.namedWindow("test")
 
 toothbrush_classes = [79, 67]
 drawing = [None]
-pts = deque(maxlen=512)
+pts = deque(maxlen=512*8)
+
+black = None
 while True:
     w, h = 1920//2, 1080//2
     success, image = camera.read()
+    
+    black = np.zeros_like(image) + 255
     if success:
         img = image
     
         img = cv2.flip(img, 1)
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         kernel = np.ones((5, 5), np.uint8)
-        Lower_green = np.array((150,100, 0))
-        Upper_green = np.array((255,190,70))
+        Upper_green = np.array((167,110, 102))
+        Lower_green = np.array((115,57,52))
         
         mask = cv2.inRange(hsv, Lower_green, Upper_green)
         mask = cv2.erode(mask, kernel, iterations=2)
@@ -52,6 +56,7 @@ while True:
             if pts[i - 1] is None or pts[i] is None:
                 continue
             cv2.line(img, pts[i - 1], pts[i], (0, 0, 255), 2)
+            cv2.line(black, pts[i-1], pts[i], (0,0,0), 2)
         # except:
         #     # if drawing and drawing[-1] != None:
         #     #     drawing.append(None)
@@ -65,6 +70,8 @@ while True:
         #     cv2.line(img, drawing[i - 1], drawing[i], (0, 0, 255), 2)
 
         cv2.imshow("Frame", img)
+        #cv2.imshow("black", black)
+        cv2.imwrite('black.png', black)
         k = cv2.waitKey(10)
         if k == 27:
             break
