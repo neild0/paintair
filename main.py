@@ -3,7 +3,6 @@ import torch
 from PIL import Image
 import numpy as np
 
-
 import numpy as np
 from collections import deque
 
