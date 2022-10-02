@@ -1,3 +1,4 @@
+from pickle import TRUE
 import cv2
 import torch
 from PIL import Image
@@ -9,7 +10,7 @@ import numpy as np
 from collections import deque
 import speech_recognition as sr
 
-camera = cv2.VideoCapture(1)
+camera = cv2.VideoCapture(0)
 cv2.namedWindow("test")
 
 CLEAR = False
@@ -46,9 +47,13 @@ def callback(recognizer, audio):
         # to use another API key, use `r.recognize_google(audio, key="GOOGLE_SPEECH_RECOGNITION_API_KEY")`
         # instead of `r.recognize_google(audio)`
         text = recognizer.recognize_vosk(audio)
+        if 'bye bye' in text:
+            global END
+            END = True
         for color, value in color_dict.items():
             if color in text:
                 global draw_color
+                
                 draw_color = value
                 break
         print("Google Speech Recognition thinks you said " + text)
@@ -114,24 +119,5 @@ while True:
     if k == 27:
         break
 
-print(drawing)
 
-from stable_diffusion_tf.stable_diffusion import StableDiffusion
-from PIL import Image
-
-generator = StableDiffusion(
-    img_height=512,
-    img_width=512,
-    jit_compile=False,  # You can try True as well (different performance profile)
-)
-
-img = generator.generate(
-    "a high quality sketch of the sun , watercolor , pencil color",
-    num_steps=50,
-    unconditional_guidance_scale=7.5,
-    temperature=1,
-    batch_size=1,
-    input_image="test4.png",
-    input_image_strength=0.8
-)
-pil_img = Image.fromarray(img[0])
+img = cv2.imread('black.png')
