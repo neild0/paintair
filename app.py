@@ -47,7 +47,7 @@ def upload_drawing():
         files = {'img': jpg_as_text}
 
 
-        return {'img': json.dumps(jpg_as_text)}
+        return {'img': json.dumps(files)}
     # except Exception as e:
     #     print(e)
     #     # pil_img.save("output.png")
