@@ -169,6 +169,9 @@ while True:
 
     if END:
         import base64
+
+        text = json.loads(END)
+        text = text['text'].strip()
         # make the request
         url = "http://latte.csua.berkeley.edu:5000/sd"
         retval, buffer = cv2.imencode('.jpg', image)
@@ -193,8 +196,8 @@ while True:
         if pts[i - 1] is None or pts[i] is None:
             continue
         prev_point, cur_point, color = pts[i-1][:2], pts[i][:2], pts[i][2]
-        cv2.line(img, prev_point, cur_point, color, 5)
-        cv2.line(black, prev_point, cur_point, color, 5)
+        cv2.line(img, prev_point, cur_point, color, 2)
+        cv2.line(black, prev_point, cur_point, color, 2)
 
     cv2.imshow("Frame", img)
     #cv2.imshow("black", black)
