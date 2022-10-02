@@ -181,7 +181,7 @@ while True:
         files = {'img': jpg_as_text}
         response = requests.post(url, json = files)
         print("response is", response)
-        new_img = Image.fromarray(json.loads(response['pic']), dtype='uint8')
+        new_img = Image.fromarray(json.loads(response)['pic'], dtype='uint8')
         jpg_as_text = base64.b64decode(new_img)
         img = cv2.imdecode(jpg_as_text, cv2.IMREAD_COLOR)
         cv2.imshow(new_img)
