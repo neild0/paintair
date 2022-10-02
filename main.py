@@ -89,8 +89,8 @@ while True:
                 h, w, c = img.shape
                 cx, cy = int(lm.x * w), int(lm.y * h)
                 if id == 8: # tip of the pointer finger
-                    cv2.circle(img, (cx, cy), 25, (255, 0, 255), cv2.FILLED)
-                    pts.appendleft((cx, cy))
+                    cv2.circle(img, (cx, cy), 25, draw_color, cv2.FILLED)
+                    pts.appendleft((cx, cy, draw_color))
 
     if END:
         break
@@ -103,8 +103,9 @@ while True:
     for i in range(1, len(pts)):
         if pts[i - 1] is None or pts[i] is None:
             continue
-        cv2.line(img, pts[i - 1], pts[i], draw_color, 2)
-        cv2.line(black, pts[i-1], pts[i], draw_color, 2)
+        prev_point, cur_point, color = pts[i-1][:2], pts[i][:2], pts[i][2]
+        cv2.line(img, prev_point, cur_point, color, 2)
+        cv2.line(black, prev_point, cur_point, color, 2)
 
     cv2.imshow("Frame", img)
     #cv2.imshow("black", black)
