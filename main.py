@@ -3,12 +3,15 @@ import torch
 from PIL import Image
 import numpy as np
 import mediapipe as mp
+import json
 
 
 import numpy as np
 from collections import deque
 import speech_recognition as sr
-import replicate
+# import replicate
+import requests
+import json
 
 def angle_btw_points(point1, point2, base):
     a = np.array([abs(base[0] - point1[0]), abs(base[1] - point1[1])])
@@ -28,7 +31,7 @@ def dist(point1, point2):
     x2, y2 = point2
     return abs(x1 - x2) ** 2 + abs(y1 - y2) ** 2
 
-camera = cv2.VideoCapture(1)
+camera = cv2.VideoCapture(0)
 cv2.namedWindow("test")
 
 CLEAR = False
@@ -101,9 +104,9 @@ def callback(recognizer, audio):
         # to use another API key, use `r.recognize_google(audio, key="GOOGLE_SPEECH_RECOGNITION_API_KEY")`
         # instead of `r.recognize_google(audio)`
         text = recognizer.recognize_vosk(audio)
-        if 'bye bye' in text:
+        if 'i made' in text:
             global END
-            END = True
+            END = text.replace('i made','')
         if "clear" in text:
             global CLEAR
             CLEAR = True
@@ -136,7 +139,7 @@ while True:
     success, image = camera.read()
 
     if not success:
-        break
+        continue
 
     black = np.zeros_like(image) + 255
     img = image
@@ -168,6 +171,12 @@ while True:
                     pts.append(None)
 
     if END:
+        # make the request
+        url = "http://latte.csua.berkeley.edu:5000/sd"
+        files = {'img': black}
+        response = requests.post(url, files = files)
+        new_img = Image.fromarray(np.array(json.loads(response['pic']), dtype='uint8'))
+        cv2.imshow(new_img)
         break
 
     if CLEAR:
@@ -184,11 +193,14 @@ while True:
 
     cv2.imshow("Frame", img)
     #cv2.imshow("black", black)
-    cv2.imwrite('black.jpeg', black)
+    cv2.imwrite('black.png', black)
+
     k = cv2.waitKey(10)
     if k == 27:
         break
 
+ans = json.loads(END)
+ans = ans['text'].strip()
 
 model = replicate.models.get("stability-ai/stable-diffusion")
 
