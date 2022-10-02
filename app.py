@@ -32,7 +32,7 @@ def upload_drawing():
         img = Image.open(img)
         cv2.imwrite("black.png", np.array(img))
         img = generator.generate(
-            f"a high quality sketch of a {prompt} , watercolor , pencil color",
+            f"a high quality, high resolution sketch of a {prompt} , watercolor , pencil color",
             num_steps=50,
             unconditional_guidance_scale=7.5,
             temperature=1,
