@@ -28,7 +28,7 @@ def dist(point1, point2):
     x2, y2 = point2
     return abs(x1 - x2) ** 2 + abs(y1 - y2) ** 2
 
-camera = cv2.VideoCapture(0)
+camera = cv2.VideoCapture(1)
 cv2.namedWindow("test")
 
 CLEAR = False
@@ -168,12 +168,18 @@ while True:
                     pts.append(None)
 
     if END:
+        import base64
         # make the request
         url = "http://latte.csua.berkeley.edu:5000/sd"
-        files = {'img': np.array(black)}
-        response = requests.post(url, files = files)
+        retval, buffer = cv2.imencode('.jpg', image)
+        # Convert to base64 encoding and show start of data
+        jpg_as_text = base64.b64encode(buffer)
+        files = {'img': jpg_as_text}
+        response = requests.post(url, data = files)
         print("response is", response)
-        new_img = Image.fromarray(np.array(json.loads(response['pic']), dtype='uint8'))
+        new_img = Image.fromarray(json.loads(response['pic']), dtype='uint8')
+        jpg_as_text = base64.b64decode(new_img)
+        img = cv2.imdecode(jpg_as_text, cv2.IMREAD_COLOR)
         cv2.imshow(new_img)
         break
 
@@ -205,23 +211,23 @@ ans = ans['text'].strip()
 # input = "a ninja"
 # for image in model.predict(prompt=f"a high quality sketch of {input} , watercolor , pencil color", init_image=open("black.jpeg", "rb"), width=1024, height=768, prompt_strength=0.7, num_inference_steps=50):
 #     print(image)
-
-from stable_diffusion_tf.stable_diffusion import StableDiffusion
-from PIL import Image
-
-generator = StableDiffusion(
-    img_height=512,
-    img_width=512,
-    jit_compile=False,  # You can try True as well (different performance profile)
-)
-
-img = generator.generate(
-    "a high quality sketch of the sun , watercolor , pencil color",
-    num_steps=50,
-    unconditional_guidance_scale=7.5,
-    temperature=1,
-    batch_size=1,
-    input_image="test4.png",
-    input_image_strength=0.8
-)
-pil_img = Image.fromarray(img[0])
+#
+# from stable_diffusion_tf.stable_diffusion import StableDiffusion
+# from PIL import Image
+#
+# generator = StableDiffusion(
+#     img_height=512,
+#     img_width=512,
+#     jit_compile=False,  # You can try True as well (different performance profile)
+# )
+#
+# img = generator.generate(
+#     "a high quality sketch of the sun , watercolor , pencil color",
+#     num_steps=50,
+#     unconditional_guidance_scale=7.5,
+#     temperature=1,
+#     batch_size=1,
+#     input_image="test4.png",
+#     input_image_strength=0.8
+# )
+# pil_img = Image.fromarray(img[0])
