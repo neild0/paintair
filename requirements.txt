@@ -5,3 +5,4 @@ numpy
 pyaudio
 git+https://github.com/Uberi/speech_recognition
 vosk
+mediapipe
