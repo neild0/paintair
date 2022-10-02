@@ -11,8 +11,8 @@ from io import BytesIO
 server = Flask(__name__)
 
 generator = StableDiffusion(
-    img_height=720,
-    img_width=720,
+    img_height=512,
+    img_width=512,
     jit_compile=True,  # You can try True as well (different performance profile)
 )
 
