@@ -26,13 +26,13 @@ def upload_drawing():
         print(request)
         print(request.data)
         j = json.loads(request.data)
-        j = j['img']
-        jpg_as_text = base64.b64decode(j)
+        img, prompt = j['img']
+        jpg_as_text = base64.b64decode(img)
         img = BytesIO(jpg_as_text)
         img = Image.open(img)
         cv2.imwrite("black.png", np.array(img))
         img = generator.generate(
-            "a high quality sketch of the sun , watercolor , pencil color",
+            f"a high quality sketch of a {prompt} , watercolor , pencil color",
             num_steps=50,
             unconditional_guidance_scale=7.5,
             temperature=1,

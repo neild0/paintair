@@ -28,7 +28,7 @@ def dist(point1, point2):
     x2, y2 = point2
     return abs(x1 - x2) ** 2 + abs(y1 - y2) ** 2
 
-camera = cv2.VideoCapture(0)
+camera = cv2.VideoCapture(1)
 cv2.namedWindow("test")
 
 CLEAR = False
@@ -58,7 +58,7 @@ color_dict = {
               }
 # this is called from the background thread
 draw_color = (0, 0, 0)
-
+DISPLAY = False
 
 def recognize_whisper(self, audio_data, model="base", show_dict=False, load_options=None, language=None,
                       translate=False, **transcribe_options):
@@ -103,7 +103,7 @@ def callback(recognizer, audio):
         text = recognizer.recognize_vosk(audio)
         if 'i made' in text:
             global END
-            END = text.replace('i made', ' ')
+            END = True
         if "clear" in text:
             global CLEAR
             CLEAR = True
@@ -114,7 +114,6 @@ def callback(recognizer, audio):
                 global draw_color
                 draw_color = value
                 break
-        print(text)
     except sr.UnknownValueError:
         print("Google Speech Recognition could not understand audio")
     except sr.RequestError as e:
@@ -134,11 +133,12 @@ wait_iters = 5
 while True:
     w, h = 1920//2, 1080//2
     success, image = camera.read()
+    if black is None: black = np.zeros_like(image) + 255
+
 
     if not success:
         continue
 
-    black = np.zeros_like(image) + 255
     img = image
 
     img = cv2.flip(img, 1)
@@ -157,58 +157,65 @@ while True:
             thumb_tip4 = int(handLms.landmark[4].x * w), int(handLms.landmark[4].y * h)
 
             if (angle_btw_points(index_tip8, thumb_tip4, wrist0) <= 25.0
-                and dist(index_tip8, middle_tip12) > 15000):
+                and dist(index_tip8, middle_tip12) > 15000) or thumb_tip4 is None or wrist0 is None or middle_tip12 is None:
                 cx, cy = index_tip8
                 cv2.circle(img, (cx, cy), 25, draw_color, cv2.FILLED)
                 pts.append((cx, cy, draw_color))
                 wait_iters = 5
             else:
+                cx, cy = index_tip8
+                cv2.circle(img, (cx, cy), 15, draw_color, cv2.FILLED)
                 wait_iters -= 1
                 if not wait_iters:
                     pts.append(None)
 
     if END:
         import base64
+        from io import BytesIO
 
-        text = json.loads(END)
-        text = text['text'].strip()
         # make the request
         url = "http://latte.csua.berkeley.edu:5000/sd"
-        retval, buffer = cv2.imencode('.jpg', image)
+        retval, buffer = cv2.imencode('.jpg', black)
         # Convert to base64 encoding and show start of data
         jpg_as_text = base64.b64encode(buffer)
-        print(jpg_as_text)
-        files = {'img': jpg_as_text}
-        response = requests.post(url, json = files)
-        print("response is", response)
-        new_img = Image.fromarray(json.loads(response)['pic'], dtype='uint8')
-        jpg_as_text = base64.b64decode(new_img)
-        img = cv2.imdecode(jpg_as_text, cv2.IMREAD_COLOR)
-        cv2.imshow(new_img)
-        break
+        prompt = input("What's the prompt?:")
+        files = {'img': jpg_as_text, "prompt": prompt}
+        response = requests.post(url, json = files).json()
+        jpg_as_text = base64.b64decode(eval(response["img"]))
+        result = BytesIO(jpg_as_text)
+        result = Image.open(result)
+        cv2.imwrite("hard.png", np.array(result))
+
+        END = False
+        DISPLAY = True
+        pts.clear()
+        cv2.imshow("Frame", image)
+        continue
 
     if CLEAR:
         pts.clear()
         CLEAR = False
+        DISPLAY = False
 
     # img //= 4
-    for i in range(1, len(pts)):
-        if pts[i - 1] is None or pts[i] is None:
-            continue
-        prev_point, cur_point, color = pts[i-1][:2], pts[i][:2], pts[i][2]
-        cv2.line(img, prev_point, cur_point, color, 2)
-        cv2.line(black, prev_point, cur_point, color, 2)
+    if not DISPLAY:
+        for i in range(1, len(pts)):
+            if pts[i - 1] is None or pts[i] is None:
+                continue
+            prev_point, cur_point, color = pts[i-1][:2], pts[i][:2], pts[i][2]
+            cv2.line(img, prev_point, cur_point, color, 10)
+            cv2.line(black, prev_point, cur_point, color, 10)
+        cv2.imwrite('black.png', black)
+    else:
+        y_offset, x_offset = 50, 50
+        img[y_offset: y_offset + result.size[0], x_offset: x_offset + result.size[1]] = result
 
     cv2.imshow("Frame", img)
-    #cv2.imshow("black", black)
-    cv2.imwrite('black.png', black)
+
 
     k = cv2.waitKey(10)
     if k == 27:
         break
-
-ans = json.loads(END)
-ans = ans['text'].strip()
 
 # model = replicate.models.get("stability-ai/stable-diffusion")
 #
