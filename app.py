@@ -19,6 +19,7 @@ print("server is ready")
 def upload_drawing():
     if request.method == 'POST':
         import base64
+        print(request)
         print(request.data)
         jpg_as_text = base64.b64decode(request.data)
         img = cv2.imdecode(jpg_as_text, cv2.IMREAD_COLOR)
