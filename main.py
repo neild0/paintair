@@ -9,7 +9,9 @@ import json
 import numpy as np
 from collections import deque
 import speech_recognition as sr
-import replicate
+# import replicate
+import requests
+import json
 
 def angle_btw_points(point1, point2, base):
     a = np.array([abs(base[0] - point1[0]), abs(base[1] - point1[1])])
@@ -137,7 +139,7 @@ while True:
     success, image = camera.read()
 
     if not success:
-        break
+        continue
 
     black = np.zeros_like(image) + 255
     img = image
@@ -169,6 +171,12 @@ while True:
                     pts.appendleft(None)
 
     if END:
+        # make the request
+        url = "http://latte.csua.berkeley.edu:5000/sd"
+        files = {'img': black}
+        response = requests.post(url, files = files)
+        new_img = Image.fromarray(np.array(json.loads(response['pic']), dtype='uint8'))
+        cv2.imshow(new_img)
         break
 
     if CLEAR:
@@ -185,7 +193,8 @@ while True:
 
     cv2.imshow("Frame", img)
     #cv2.imshow("black", black)
-    cv2.imwrite('black.jpeg', black)
+    cv2.imwrite('black.png', black)
+
     k = cv2.waitKey(10)
     if k == 27:
         break
