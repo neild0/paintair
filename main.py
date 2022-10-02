@@ -6,8 +6,6 @@ import numpy as np
 import numpy as np
 from collections import deque
 
-model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
-model.multi_label = True
 camera = cv2.VideoCapture(0)
 cv2.namedWindow("test")
 
@@ -48,7 +46,6 @@ while True:
         center = None
 
         if len(cnts) >= 1:
-            print(cnts)
             cnt = max(cnts, key=cv2.contourArea)
             if cv2.contourArea(cnt) > 200:
                 ((x, y), radius) = cv2.minEnclosingCircle(cnt)
@@ -67,6 +64,7 @@ while True:
             pts.clear()
             CLEAR = False
 
+        img //= 4
         for i in range(1, len(pts)):
             if pts[i - 1] is None or pts[i] is None:
                 continue
