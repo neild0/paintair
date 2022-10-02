@@ -1,4 +1,4 @@
-from pickle import TRUE
+from multiprocessing.connection import wait
 import cv2
 import torch
 from PIL import Image
@@ -9,6 +9,24 @@ import mediapipe as mp
 import numpy as np
 from collections import deque
 import speech_recognition as sr
+
+def angle_btw_points(point1, point2, base):
+    a = np.array([abs(base[0] - point1[0]), abs(base[1] - point1[1])])
+    b = np.array([abs(base[0] - point2[0]), abs(base[1] - point2[1])])
+
+    inner = np.inner(a, b)
+    norms = np.linalg.norm(a) * np.linalg.norm(b)
+
+    cos = inner / norms
+    rad = np.arccos(np.clip(cos, -1.0, 1.0))
+    deg = np.rad2deg(rad)
+
+    return deg
+
+def dist(point1, point2):
+    x1, y1 = point1
+    x2, y2 = point2
+    return abs(x1 - x2) ** 2 + abs(y1 - y2) ** 2
 
 camera = cv2.VideoCapture(0)
 cv2.namedWindow("test")
@@ -53,7 +71,6 @@ def callback(recognizer, audio):
         for color, value in color_dict.items():
             if color in text:
                 global draw_color
-                
                 draw_color = value
                 break
         print("Google Speech Recognition thinks you said " + text)
@@ -72,6 +89,7 @@ with m as source:
 r.listen_in_background(m, callback, phrase_time_limit=2)
 # `stop_listening` is now a function that, when called, stops
 
+wait_iters = 5
 while True:
     w, h = 1920//2, 1080//2
     success, image = camera.read()
@@ -102,8 +120,11 @@ while True:
                 cx, cy = index_tip8
                 cv2.circle(img, (cx, cy), 25, draw_color, cv2.FILLED)
                 pts.appendleft((cx, cy, draw_color))
+                wait_iters = 5
             else:
-                pts.appendleft(None)
+                wait_iters -= 1
+                if not wait_iters:
+                    pts.appendleft(None)
     
     if END:
         break
@@ -127,5 +148,24 @@ while True:
     if k == 27:
         break
 
+print(drawing)
 
-img = cv2.imread('black.png')
+from stable_diffusion_tf.stable_diffusion import StableDiffusion
+from PIL import Image
+
+generator = StableDiffusion(
+    img_height=512,
+    img_width=512,
+    jit_compile=False,  # You can try True as well (different performance profile)
+)
+
+img = generator.generate(
+    "a high quality sketch of the sun , watercolor , pencil color",
+    num_steps=50,
+    unconditional_guidance_scale=7.5,
+    temperature=1,
+    batch_size=1,
+    input_image="test4.png",
+    input_image_strength=0.8
+)
+pil_img = Image.fromarray(img[0])
