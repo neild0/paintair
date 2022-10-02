@@ -8,6 +8,7 @@ mpDraw = mp.solutions.drawing_utils
 
 while True:
     success, image = cap.read()
+    image = cv2.flip(image, 1)
     imageRGB = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     results = hands.process(imageRGB)
 

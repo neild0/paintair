@@ -8,7 +8,8 @@ import mediapipe as mp
 
 import numpy as np
 from collections import deque
-import speech_recognition as sr
+# import speech_recognition as sr
+sr = None
 
 camera = cv2.VideoCapture(0)
 cv2.namedWindow("test")
@@ -25,16 +26,16 @@ drawing = [None]
 black = None
 pts = deque()
 color_dict = {
-              'read': (249, 19, 0), 'red': (249, 19, 0),
-              "orange": (255, 171, 32),
-              "yellow": (255, 213, 0),
-              "green": (54, 214, 6),
-              "turquoise": (49, 251, 190),
-              "light blue": (152, 214, 255),
-              "dark blue": (36, 63, 234),
-              "blue": (16, 139, 229),
-              "purple": (110, 16, 229),
-              "pink": (255, 158, 224),
+              'read': (0, 19, 249), 'red': (0, 19, 249),
+              "orange": (32, 171, 255),
+              "yellow": (0, 213, 255),
+              "green": (6, 214, 54),
+              "turquoise": (190, 251, 49),
+              "light blue": (255, 214, 152),
+              "dark blue": (234, 63, 36),
+              "blue": (229, 139, 16),
+              "purple": (229, 16, 110),
+              "pink": (224, 158, 255),
               "black": (0, 0, 0),
               "white": (255, 255, 255)
               }
@@ -63,14 +64,15 @@ def callback(recognizer, audio):
         print("Could not request results from Google Speech Recognition service; {0}".format(e))
 
 
-r = sr.Recognizer()
-m = sr.Microphone()
-with m as source:
-    r.adjust_for_ambient_noise(source)  # we only need to calibrate once, before we start listening
+if sr: 
+    r = sr.Recognizer()
+    m = sr.Microphone()
+    with m as source:
+        r.adjust_for_ambient_noise(source)  # we only need to calibrate once, before we start listening
 
-# start listening in the background (note that we don't have to do this inside a `with` statement)
-r.listen_in_background(m, callback, phrase_time_limit=2)
-# `stop_listening` is now a function that, when called, stops
+    # start listening in the background (note that we don't have to do this inside a `with` statement)
+    r.listen_in_background(m, callback, phrase_time_limit=2)
+    # `stop_listening` is now a function that, when called, stops
 
 while True:
     w, h = 1920//2, 1080//2
@@ -88,15 +90,23 @@ while True:
     results = hands.process(imageRGB)
 
     # checking whether a hand is detected
+    h, w, c = img.shape
     if results.multi_hand_landmarks:
+        index_tip8, index_mcp5, middle_tip12 = None, None, None
         for handLms in results.multi_hand_landmarks: # working with each hand
-            for id, lm in enumerate(handLms.landmark):
-                h, w, c = img.shape
-                cx, cy = int(lm.x * w), int(lm.y * h)
-                if id == 8: # tip of the pointer finger
-                    cv2.circle(img, (cx, cy), 25, draw_color, cv2.FILLED)
-                    pts.appendleft((cx, cy, draw_color))
+            index_tip8 = int(handLms.landmark[8].x * w), int(handLms.landmark[8].y * h)
+            middle_tip12 = int(handLms.landmark[12].x * w), int(handLms.landmark[12].y * h)
+            wrist0 = int(handLms.landmark[0].x * w), int(handLms.landmark[0].y * h)
+            thumb_tip4 = int(handLms.landmark[4].x * w), int(handLms.landmark[4].y * h)
 
+            if (angle_btw_points(index_tip8, thumb_tip4, wrist0) <= 25.0
+                and dist(index_tip8, middle_tip12) > 15000):
+                cx, cy = index_tip8
+                cv2.circle(img, (cx, cy), 25, (255, 0, 255), cv2.FILLED)
+                pts.appendleft((cx, cy, draw_color))
+            else:
+                pts.appendleft(None)
+    
     if END:
         break
 
