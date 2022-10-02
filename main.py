@@ -148,24 +148,6 @@ while True:
 
     # checking whether a hand is detected
     h, w, c = img.shape
-    if results.multi_hand_landmarks:
-        index_tip8, index_mcp5, middle_tip12 = None, None, None
-        for handLms in results.multi_hand_landmarks: # working with each hand
-            index_tip8 = int(handLms.landmark[8].x * w), int(handLms.landmark[8].y * h)
-            middle_tip12 = int(handLms.landmark[12].x * w), int(handLms.landmark[12].y * h)
-            wrist0 = int(handLms.landmark[0].x * w), int(handLms.landmark[0].y * h)
-            thumb_tip4 = int(handLms.landmark[4].x * w), int(handLms.landmark[4].y * h)
-            if (angle_btw_points(index_tip8, thumb_tip4, wrist0) <= 25.0) or thumb_tip4 is None or wrist0 is None or middle_tip12 is None:
-                cx, cy = index_tip8
-                cv2.circle(img, (cx, cy), 25, draw_color, cv2.FILLED)
-                pts.append((cx, cy, draw_color))
-                wait_iters = 5
-            else:
-                cx, cy = index_tip8
-                cv2.circle(img, (cx, cy), 15, draw_color, cv2.FILLED)
-                wait_iters -= 1
-                if not wait_iters:
-                    pts.append(None)
 
     if END:
         import base64
@@ -207,6 +189,24 @@ while True:
     else:
         y_offset, x_offset = 0,0
         img[y_offset: y_offset + result.size[0], x_offset: x_offset + result.size[1]] = result
+    if results.multi_hand_landmarks:
+        index_tip8, index_mcp5, middle_tip12 = None, None, None
+        for handLms in results.multi_hand_landmarks: # working with each hand
+            index_tip8 = int(handLms.landmark[8].x * w), int(handLms.landmark[8].y * h)
+            middle_tip12 = int(handLms.landmark[12].x * w), int(handLms.landmark[12].y * h)
+            wrist0 = int(handLms.landmark[0].x * w), int(handLms.landmark[0].y * h)
+            thumb_tip4 = int(handLms.landmark[4].x * w), int(handLms.landmark[4].y * h)
+            if (angle_btw_points(index_tip8, thumb_tip4, wrist0) <= 25.0) or thumb_tip4 is None or wrist0 is None or middle_tip12 is None:
+                cx, cy = index_tip8
+                cv2.circle(img, (cx, cy), 25, draw_color, cv2.FILLED)
+                pts.append((cx, cy, draw_color))
+                wait_iters = 5
+            else:
+                cx, cy = index_tip8
+                cv2.circle(img, (cx, cy), 15, draw_color, cv2.FILLED)
+                wait_iters -= 1
+                if not wait_iters:
+                    pts.append(None)
 
     cv2.imshow("Frame", img)
 
